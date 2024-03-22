@@ -1,0 +1,145 @@
+/* style.css */
+* {
+    margin: 0;
+    padding: 0;
+    background-color: beige;
+    border-color: rgb(24, 24, 45);
+    box-shadow: none;
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+    overflow: auto;
+}
+header {
+    height: min(15vh);
+    display: flex;
+}
+.container {
+    display: grid;
+    grid-template-columns: 1fr 3fr;
+}
+
+#title, .suppliment-title {
+    font-size: 50px;
+    margin-left: 2%;
+    margin-top: 2%;
+}
+
+.suppliment-title {
+    font-weight: 200;
+    font-style: italic;
+}
+
+.sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: 5vh;
+    padding: 5%;
+}
+
+.filters, .my-projects {
+    display: flex;
+    flex-direction: column;
+    gap: 1vh;
+}
+.sidebar button {
+    width: 80%;
+    text-align: left;
+    display: flex;
+    align-items: center;
+    font-size: large;
+    gap: 5%;
+}
+dialog{
+    height: 40vw;
+    width: 30vw;
+    position: absolute;
+    top: 5vw;
+    left: 35vw;
+    padding: 2em;
+}
+dialog #to-do-description, #project-name, #to-do-due{
+    background-color: beige;
+    border-radius: 5px;
+    width: 300px;
+    height: 30px;
+}
+
+dialog input{
+    margin: 10px;
+
+}
+ul{
+    list-style: none;
+}
+
+form > ul > li {
+    margin-bottom: 3%;
+}
+form > ul > ul > li {
+    margin-bottom: 1%;
+    margin-left: 10%;
+}
+form > ul > ul > p {
+    margin: 10px;
+}
+dialog > button {
+    width: 30%;
+    height: 30px;
+    border-radius: 5px;
+    margin-top: 5%;
+    margin-left: 10%;
+    margin-right: 7%;
+}
+
+legend {
+    font-size: x-large;
+    font-weight: 700;
+}
+
+.project_to_dos {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+input, label, .editBtn {
+    padding: 5px;
+    align-self: center;
+}
+
+label > div {
+    margin: 3px;
+}
+
+.display > .card > .project_to_dos {
+    display: flex;
+    flex-direction: column;
+    
+}
+
+.display > .card {
+    display: flex;
+    flex-direction: column;
+    border-radius: 10px;
+    border: 1px solid grey;
+    padding: 20px;
+    gap: 5px;
+}
+
+.display {
+    display: flex;
+    flex-wrap: wrap;
+    padding: 5%;
+    gap: 20px;
+}
+
+.editBtn {
+    border: none;
+    color: grey;
+}
+.editBtn:hover::after {
+    content: 'edit';
+}
