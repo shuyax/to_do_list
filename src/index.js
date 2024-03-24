@@ -298,12 +298,24 @@ function createProjectCard(project,isDashboard,projectIndex){
     add_button.classList.add('add_new_to_do')
     add_button.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" height="15px" width="15px"><title>plus</title><path d="M19,13H13V19H11V13H5V11H11V5H13V11H19V13Z" /></svg>'
     edit_buttons.appendChild(add_button)
+    
 
     // Delete the project button
     const delete_button = document.createElement('button')
     delete_button.classList.add('delete_project')
     delete_button.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" height="15px" width="15px"><title>delete</title><path d="M19,4H15.5L14.5,3H9.5L8.5,4H5V6H19M6,19A2,2 0 0,0 8,21H16A2,2 0 0,0 18,19V7H6V19Z" /></svg>'
     edit_buttons.appendChild(delete_button)
+    delete_button.addEventListener('click', () => {
+        const result = confirm('Do you want to delete this project? Please note that you will lose all to do tasks under this project once you delete it.')
+        if (result == true) {
+            const delete_index = projects.findIndex(current_project => current_project.projectName == project.projectName)
+            if (delete_index != -1){
+                projects.splice(delete_index,1)
+            }
+            displayProjectsWithToDos(projects,true)
+            displayProjectsInSidebar(projects)
+        }
+    })
 
     const ul = document.createElement('ul')
     ul.classList.add('project_to_dos')
