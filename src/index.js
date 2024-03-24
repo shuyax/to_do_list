@@ -158,7 +158,6 @@ function createProjectFromValidForm(){
     const status = document.querySelector('input[name="status"]:checked')
     const project_name = document.getElementById('project-name')
     if (projectCreationFormValidation() == true) {
-        
         if (description.value != ''){
             const newProject = new Project.Project(project_name.value)
             if (priority == null) {
@@ -288,6 +287,24 @@ function createProjectCard(project,isDashboard,projectIndex){
     project_name.value = project.projectName
     project_name.textContent = project.projectName
     card.appendChild(project_name)
+
+    // Edit a project buttons: add button and delete button
+    const edit_buttons = document.createElement('div')
+    edit_buttons.classList.add('edit_project_buttons')
+    card.appendChild(edit_buttons)
+
+    // Add a new to do task button
+    const add_button = document.createElement('button')
+    add_button.classList.add('add_new_to_do')
+    add_button.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" height="15px" width="15px"><title>plus</title><path d="M19,13H13V19H11V13H5V11H11V5H13V11H19V13Z" /></svg>'
+    edit_buttons.appendChild(add_button)
+
+    // Delete the project button
+    const delete_button = document.createElement('button')
+    delete_button.classList.add('delete_project')
+    delete_button.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" height="15px" width="15px"><title>delete</title><path d="M19,4H15.5L14.5,3H9.5L8.5,4H5V6H19M6,19A2,2 0 0,0 8,21H16A2,2 0 0,0 18,19V7H6V19Z" /></svg>'
+    edit_buttons.appendChild(delete_button)
+
     const ul = document.createElement('ul')
     ul.classList.add('project_to_dos')
     let taskIndex = 0
@@ -363,6 +380,16 @@ function createToDoLabel(project_task,isDashboard,projectIndex,taskIndex) {
     } else {
         const due_date_time = formatDueDateTime(project_task.due_date_time)
         const priority = project_task.priority[0].toUpperCase() + project_task.priority.substring(1)
+        let priority_color = ''
+        let priority_font = 'font-family: cursive, Chalkduster, fantasy'
+        let priority_weight = 'bold'
+        if (priority == 'High') {
+            priority_color = 'red'
+        } else if (priority == 'Normal') {
+            priority_color = 'blue'
+        } else if (priority == 'Low') {
+            priority_color = 'green'
+        }
         let to_do_status
         if (project_task.to_do_status == 'to_do'){
             to_do_status = 'To Do'
@@ -374,7 +401,7 @@ function createToDoLabel(project_task,isDashboard,projectIndex,taskIndex) {
         label.innerHTML = 
         project_task.description +
         '<div>' + 'Due On: ' + due_date_time + '</div>' +
-        '<div>' + 'Priority: ' + priority + '</div>' +
+        '<div>' + 'Priority: ' + `<span style="color: ${priority_color}; ${priority_font};font-weight: ${priority_weight}" >` + priority + '</span>' + '</div>' +
         '<div class="status">' + 'Status: ' + to_do_status + '</div>';
     }
     return label
@@ -387,13 +414,10 @@ function createDeleteButton(to_do_description){
     delete_button.addEventListener('click', () => {
         const result = confirm('Do you want to delete this task?')
         if (result == true){
-            console.log(projects)
             const target_project_name = to_do_description.parentElement.parentElement.parentElement.firstChild.value
             const target_project = searchProject(target_project_name)
             target_project.deleteToDo(to_do_description.value)
-            console.log(projects)
             displayProjectsWithToDos(projects,true)
-            // displayAllProjectsEvent(projects)
         }
     })
     return delete_button
@@ -414,7 +438,6 @@ function openEditToDoDialog(project_task,to_do_description){
     const dialog = document.querySelector(".add-a-project")
     dialog.showModal();
     const target_project_name = to_do_description.parentElement.parentElement.parentElement.firstChild.value
-
     const project_name = dialog.querySelector('#project-name')
     const description = dialog.querySelector('#to-do-description')
     const due = dialog.querySelector('#to-do-due')
@@ -435,7 +458,6 @@ function openEditToDoDialog(project_task,to_do_description){
             status_button.checked = true
         }
     })
-
     dialog.dataset.projectName = project_name.value
     dialog.dataset.projectDescription = description.value
 

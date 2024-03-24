@@ -105,7 +105,7 @@ legend {
     gap: 10px;
 }
 
-input, label, .editBtn, .deleteBtn {
+input, label, .editBtn, .deleteBtn, .add_new_to_do, .delete_project {
     padding: 5px;
     align-self: center;
 }
@@ -136,7 +136,7 @@ label > div {
     gap: 20px;
 }
 
-.editBtn, .deleteBtn {
+.editBtn, .deleteBtn, .add_new_to_do, .delete_project {
     border: none;
     color: grey;
 }
@@ -145,4 +145,19 @@ label > div {
 }
 .deleteBtn:hover::after {
     content: 'delete';
+}
+
+.add_new_to_do:hover::after {
+    content: 'add a new to do task';
+} 
+
+.delete_project:hover::after {
+    content: 'delete the project';
+} 
+
+.edit_project_buttons {
+    align-self: self-end;
+    margin-top: -20px;
+    margin-bottom: 10px;
+
 }

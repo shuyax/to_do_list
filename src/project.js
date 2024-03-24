@@ -106,6 +106,7 @@ export class Project {
             this.projectToDo.splice(delete_index,1)
         }
     }
+
     
 }
 
