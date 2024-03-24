@@ -280,7 +280,7 @@ function displayProjectsWithToDos(projects,isDashboard) {
     }
 }
 
-function createProjectCard(project, isDashboard,projectIndex){
+function createProjectCard(project,isDashboard,projectIndex){
     const card = document.createElement('fieldset')
     card.classList.add('card')
     const project_name = document.createElement('legend')
@@ -380,10 +380,29 @@ function createToDoLabel(project_task,isDashboard,projectIndex,taskIndex) {
     return label
 }
 
+function createDeleteButton(to_do_description){
+    const delete_button = document.createElement('button')
+    delete_button.classList.add('deleteBtn')
+    delete_button.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" height="15px" width="15px"><title>delete</title><path d="M19,4H15.5L14.5,3H9.5L8.5,4H5V6H19M6,19A2,2 0 0,0 8,21H16A2,2 0 0,0 18,19V7H6V19Z" /></svg>'
+    delete_button.addEventListener('click', () => {
+        const result = confirm('Do you want to delete this task?')
+        if (result == true){
+            console.log(projects)
+            const target_project_name = to_do_description.parentElement.parentElement.parentElement.firstChild.value
+            const target_project = searchProject(target_project_name)
+            target_project.deleteToDo(to_do_description.value)
+            console.log(projects)
+            displayProjectsWithToDos(projects,true)
+            // displayAllProjectsEvent(projects)
+        }
+    })
+    return delete_button
+}
+
 function createEditButton(project_task,to_do_description){
     const edit = document.createElement('button')
     edit.classList.add('editBtn')
-    edit.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" height="15px" width="15px" ><title>pencil</title><path d="M20.71,7.04C21.1,6.65 21.1,6 20.71,5.63L18.37,3.29C18,2.9 17.35,2.9 16.96,3.29L15.12,5.12L18.87,8.87M3,17.25V21H6.75L17.81,9.93L14.06,6.18L3,17.25Z" /></svg>'
+    edit.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" height="15px" width="15px"><title>pencil</title><path d="M20.71,7.04C21.1,6.65 21.1,6 20.71,5.63L18.37,3.29C18,2.9 17.35,2.9 16.96,3.29L15.12,5.12L18.87,8.87M3,17.25V21H6.75L17.81,9.93L14.06,6.18L3,17.25Z" /></svg>'
     edit.addEventListener('click', () => {
         openEditToDoDialog(project_task,to_do_description)
     })
@@ -428,10 +447,12 @@ function createToDoListItem(project_task, isDashboard, projectIndex, taskIndex) 
     const to_do_description = createToDoDescription(project_task, projectIndex, taskIndex)
     const label = createToDoLabel(project_task, isDashboard, projectIndex, taskIndex)
     const edit = createEditButton(project_task,to_do_description)
+    const delete_button = createDeleteButton(to_do_description)
 
     li.appendChild(to_do_description)
     li.appendChild(label)
     li.appendChild(edit)
+    li.appendChild(delete_button)
 
     return li
 }

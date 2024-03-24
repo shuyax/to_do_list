@@ -100,6 +100,12 @@ export class Project {
         }
         this.projectToDo.push(newToDo);
     }
+    deleteToDo(description_value){
+        const delete_index = this.projectToDo.findIndex(todo => todo.description == description_value)
+        if (delete_index != -1){
+            this.projectToDo.splice(delete_index,1)
+        }
+    }
     
 }
 
@@ -139,7 +145,7 @@ export const homeRenovation = new Project("Home Renovation", homeRenovationToDo)
 const fitnessGoalsToDo = [
     new ToDo("Go for a morning run", new Date(2024, 3, 10, 7, 0, 0), "normal", "to_do"),
     new ToDo("Attend yoga class", new Date(2024, 3, 12, 18, 0, 0), "low", "doing"),
-    new ToDo("Track daily calorie intake", new Date(2024, 2, 22, 19, 0, 0), "high", "done")
+    new ToDo("Track daily calorie intake", new Date(2024, 2, 24, 19, 0, 0), "high", "done")
 ]
 export const fitnessGoals = new Project("Fitness Goals", fitnessGoalsToDo)
 
@@ -153,7 +159,7 @@ export const studyPlan = new Project("Study Plan", studyPlanToDo)
 const vacationPlanningToDo = [
     new ToDo("Book flight tickets", new Date(2024, 3, 12, 15, 0, 0), "high", "to_do"),
     new ToDo("Reserve accommodation", new Date(2024, 3, 15, 12, 0, 0), "high", "doing"),
-    new ToDo("Create itinerary", new Date(2024, 2, 21, 15, 0, 0), "normal", "doing")
+    new ToDo("Create itinerary", new Date(2024, 2, 24, 15, 0, 0), "normal", "doing")
 ]
 export const vacationPlanning = new Project("Vacation Planning", vacationPlanningToDo)
 

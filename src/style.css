@@ -105,7 +105,7 @@ legend {
     gap: 10px;
 }
 
-input, label, .editBtn {
+input, label, .editBtn, .deleteBtn {
     padding: 5px;
     align-self: center;
 }
@@ -136,10 +136,13 @@ label > div {
     gap: 20px;
 }
 
-.editBtn {
+.editBtn, .deleteBtn {
     border: none;
     color: grey;
 }
 .editBtn:hover::after {
     content: 'edit';
+}
+.deleteBtn:hover::after {
+    content: 'delete';
 }
