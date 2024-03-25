@@ -105,7 +105,7 @@ legend {
     gap: 10px;
 }
 
-input, label, .editBtn, .deleteBtn, .add_new_to_do, .delete_project {
+input, label, .editBtn, .deleteBtn, .add_new_to_do, .delete_project, .add_to_do_button {
     padding: 5px;
     align-self: center;
 }
@@ -136,7 +136,7 @@ label > div {
     gap: 20px;
 }
 
-.editBtn, .deleteBtn, .add_new_to_do, .delete_project {
+.editBtn, .deleteBtn, .add_new_to_do, .delete_project, .add_to_do_button {
     border: none;
     color: grey;
 }
@@ -147,7 +147,7 @@ label > div {
     content: 'delete';
 }
 
-.add_new_to_do:hover::after {
+.add_new_to_do:hover::after, .add_to_do_button:hover::after {
     content: 'add a new to do task';
 } 
 
@@ -159,5 +159,61 @@ label > div {
     align-self: self-end;
     margin-top: -20px;
     margin-bottom: 10px;
+
+}
+
+.add_to_do_button {
+    align-self: flex-end;
+    border-radius: 10px;
+    border: 1px solid grey;
+}
+.save_button {
+    justify-self: end;
+    border-radius: 10px;
+    border: 1px solid grey;
+    width: 100px;
+    height: 30px;
+    margin-left: 255%;
+}
+
+table {
+    border-collapse: collapse;
+    border: 1px solid rgb(190,190,190);
+    letter-spacing: 1px;
+    font-size: 0.8rem;
+}
+  
+td, th {
+    border: 1px solid rgb(190,190,190);
+    padding: 10px 20px;
+}
+  
+th {
+    background-color: rgba(255, 255, 255, 0);
+    text-align: start;
+}
+  
+td {
+    text-align: center;
+}
+
+th > ul > li {
+    list-style:disc ;
+}
+
+.table input {
+    width: 250px;
+    border-radius: 10px;
+    border-color: rgb(190,190,190);
+    border: 1px ridge;
+
+}
+
+.table select {
+    width: 100px;
+    height: 30px;
+    border-radius: 7px;
+    border-color: rgb(190,190,190);
+    border: 1px ridge;
 
 }
