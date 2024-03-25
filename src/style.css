@@ -167,14 +167,7 @@ label > div {
     border-radius: 10px;
     border: 1px solid grey;
 }
-.save_button {
-    justify-self: end;
-    border-radius: 10px;
-    border: 1px solid grey;
-    width: 100px;
-    height: 30px;
-    margin-left: 255%;
-}
+
 
 table {
     border-collapse: collapse;
@@ -216,4 +209,26 @@ th > ul > li {
     border-color: rgb(190,190,190);
     border: 1px ridge;
 
+}
+
+th.save-button-cell {
+    text-align: end;
+    border: none;
+}
+.save_button {
+    border-radius: 10px;
+    border: 1px solid grey;
+    width: 100px;
+    height: 30px;
+}
+.progress_bar {
+    width: 100%;
+}
+.progress_bar::-webkit-progress-value {
+    border-radius: 10px;
+    background-color: rgb(67, 67, 203);
+}
+progress::-webkit-progress-bar {
+    border-radius: 10px;
+    background-color: lightgray; 
 }

@@ -1,5 +1,7 @@
 import './style.css';
 import * as Project from './project.js'
+import {createAddToDoButton, createToDoTable} from './edit_project_page.js'
+import {closeAddProjectFormEvent, saveProjectFormEvent, openEditToDoDialog} from './form_page.js'
 
 
 
@@ -11,7 +13,7 @@ function __init__(){
     displayProjectsInSidebar(projects)
     createAProjectEvent()
     closeAddProjectFormEvent()
-    saveProjectFormEvent()
+    saveProjectFormEvent(projects)
     displayProjectsWithToDos(projects,true)
     displayFilteredProjectsEvents(projects)
     displayAllProjectsEvent(projects)
@@ -53,138 +55,10 @@ export function searchProject(project_name){
 }
 
 
-function resetForm(form_id){
-    const form = document.getElementById(form_id);
-    form.reset()
-}
-
-function closeAddProjectFormEvent(){
-    const dialog = document.querySelector(".add-a-project");
-    const close_project_form = dialog.querySelector('.close')
-    close_project_form.addEventListener('click', () => {
-        dialog.close();
-        resetForm('add-project-form')
-    })
-}
-
-
-function saveProjectFormEvent(){
-    const dialog = document.querySelector(".add-a-project");
-    const save_project_form = dialog.querySelector('.save')
-    save_project_form.addEventListener('click', () => {
-        const edit_status = dialog.querySelector('#edit-status')
-        if (edit_status.value == false){
-            if (createProjectFromValidForm() != false) {
-                displayProjectsWithToDos(projects,true)
-                displayProjectsInSidebar(projects)
-                dialog.close();
-                resetForm('add-project-form')
-            }
-        } else {
-            const project = searchProject(dialog.dataset.projectName)
-            const project_to_do = project.searchToDo(dialog.dataset.projectDescription)
-            if (editProjectFromValidForm(project,project_to_do) != false) {
-                displayProjectsWithToDos(projects,true)
-                displayProjectsInSidebar(projects)
-                dialog.close();
-                resetForm('add-project-form')
-            }
-        }
-        
-    })
-}
-
-
-function projectCreationFormValidation() {
-    const project_name = document.getElementById('project-name')
-    if (project_name.value.trim() != ''){
-        if (searchProject(project_name.value) == false){
-            return true
-        } else {
-            alert ('This project: ' + project_name.value + ' already exists. Please use a new project name!')
-        }
-    } else {
-        alert('Please enter valid project name!')
-    }
-    return false
-}
-
-function projectEditFormValidation() {
-    const name = document.getElementById('project-name')
-    const description = document.getElementById('to-do-description')
-    if (name.value.trim() != '' && description.value.trim() != ''){
-        return true
-    } else {
-        alert('Please enter valid updated information!')
-    }
-    return false
-}
 
 
 
-
-function editProjectFromValidForm(project,project_to_do){
-    const name = document.getElementById('project-name')
-    const description = document.getElementById('to-do-description')
-    const due = document.getElementById('to-do-due')
-    const priority = document.querySelector('input[name="priority"]:checked')
-    const status = document.querySelector('input[name="status"]:checked')
-    if (projectEditFormValidation() == true) {
-        if (name.value != ''){
-            project.projectName = name.value
-        }
-        if (description.value != ''){
-            project_to_do.description = description.value
-        }
-        if (due.value != ''){
-            project_to_do.due_date_time = Project.validDateTimeFormat(due.value)
-        }
-        if (priority.value != ''){
-            project_to_do.priority = priority.value
-        }
-        if (status.value != ''){
-            project_to_do.to_do_status = status.value
-        }
-        return true
-    }
-    return false
-
-}
-
-function createProjectFromValidForm(){
-    const description = document.getElementById('to-do-description')
-    const due = document.getElementById('to-do-due')
-    const priority = document.querySelector('input[name="priority"]:checked')
-    const status = document.querySelector('input[name="status"]:checked')
-    const project_name = document.getElementById('project-name')
-    if (projectCreationFormValidation() == true) {
-        if (description.value != ''){
-            const newProject = new Project.Project(project_name.value)
-            if (priority == null) {
-                if (status == null) {
-                    newProject.addNewToDo(description.value,due.value)
-                } else {
-                    newProject.addNewToDo(description.value,due.value,null,status.value)
-                }
-            } else {
-                if (status == null) {
-                    newProject.addNewToDo(description.value,due.value,priority.value)
-                } else {
-                    newProject.addNewToDo(description.value,due.value,priority.value,status.value)
-                }
-            }
-            projects.push(newProject)
-            return true
-        } else {
-            const newProject = new Project.Project(project_name.value)
-            projects.push(newProject)
-            return true
-        }
-    }
-    return false
-}
-
-function displayProjectsInSidebar(projects){
+export function displayProjectsInSidebar(projects){
     sortProjects(projects)
     const my_projects = document.querySelector('.my-projects')
     my_projects.innerHTML = ''
@@ -258,7 +132,7 @@ function displayAllProjectsEvent(projects){
     })
 }
 
-function displayProjectsWithToDos(projects,isDashboard) {
+export function displayProjectsWithToDos(projects,isDashboard) {
     sortProjects(projects)
     const display = document.querySelector('.display')
     display.innerHTML = ''
@@ -278,22 +152,68 @@ function displayProjectsWithToDos(projects,isDashboard) {
 function createProjectCard(project,isDashboard,projectIndex){
     const card = document.createElement('fieldset')
     card.classList.add('card')
+    const card_legend = createCardLegend(project)
+    card.appendChild(card_legend)
+    const edit_button_line = createCardEditButtons(project,projects)
+    card.appendChild(edit_button_line)
+    const progress_bar = createCardProgressBar().progress_bar
+    card.appendChild(progress_bar)
+    const progress_bar_label = createCardProgressBar().progress_bar_label
+    card.appendChild(progress_bar_label)
+    const ul = document.createElement('ul')
+    ul.classList.add('project_to_dos')
+    let taskIndex = 0
+    let done_task = 0
+    for (let project_task of project.projectToDo){
+        if (project_task.to_do_status == 'done'){
+            done_task++
+        }
+        const li = createToDoListItem(project_task, isDashboard, projectIndex, taskIndex);
+        ul.appendChild(li)
+        taskIndex ++
+    }
+    const total_task = project.projectToDo.length
+    updateProgressBar(progress_bar,progress_bar_label,done_task,total_task)
+    card.appendChild(ul)
+    return card
+}
+
+function createCardLegend(project) {
     const project_name = document.createElement('legend')
     project_name.classList.add('project_name')
     project_name.value = project.projectName
     project_name.textContent = project.projectName
-    card.appendChild(project_name)
-
+    return project_name
+}
+function createCardEditButtons(project,projects){
     // Edit a project buttons: add button and delete button
-    const edit_buttons = document.createElement('div')
-    edit_buttons.classList.add('edit_project_buttons')
-    card.appendChild(edit_buttons)
-
+    const edit_button_line = document.createElement('div')
+    edit_button_line.classList.add('edit_project_buttons')
+    const add_button = createAddButton(project)
+    edit_button_line.appendChild(add_button)
+    const delete_button = createProjectDeleteButton(project,projects)
+    edit_button_line.appendChild(delete_button)
+    return edit_button_line
+}
+function createCardProgressBar() {
+    const progress_bar = document.createElement('progress');
+    progress_bar.classList.add('progress_bar')
+    const progress_bar_label = document.createElement('span')
+    progress_bar_label.classList.add('progress_bar_label')
+    return {progress_bar, progress_bar_label} 
+}
+function updateProgressBar(progress_bar,progress_bar_label,done_task,total_task) {
+    const percentage = done_task / total_task
+    progress_bar.value = percentage
+    progress_bar_label.textContent = (percentage * 100).toFixed(0) + '%'
+    return percentage
+}
+  
+function createAddButton(project){
     // Add a new to do task button
     const add_button = document.createElement('button')
     add_button.classList.add('add_new_to_do')
     add_button.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" height="15px" width="15px"><title>plus</title><path d="M19,13H13V19H11V13H5V11H11V5H13V11H19V13Z" /></svg>'
-    edit_buttons.appendChild(add_button)
     add_button.addEventListener('click', () => {
         let to_do_index = 0
         const display = document.querySelector('.display')
@@ -306,78 +226,22 @@ function createProjectCard(project,isDashboard,projectIndex){
         project_name.value = project.projectName
         project_name.textContent = project.projectName
         card.appendChild(project_name)
-        const add_to_do_button = document.createElement('button')
-        add_to_do_button.classList.add('add_to_do_button')
-        add_to_do_button.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" height="30px" width="30px"><title>plus</title><path d="M19,13H13V19H11V13H5V11H11V5H13V11H19V13Z" /></svg>'
-        add_to_do_button.addEventListener('click', () => {
-            createNewTableRowEvent(project,to_do_index)
-            to_do_index++
-        })
+        const add_to_do_button = createAddToDoButton(project,to_do_index)
         card.appendChild(add_to_do_button)
-
         // Create a table to display existing to dos and add new to dos
-        const table = document.createElement('div')
-        table.classList.add('table')
-        card.appendChild(table)
-        // Create table's head
-        const table_head = document.createElement('thead')
-        table.appendChild(table_head)
-        const head_row = document.createElement('tr')
-        table_head.appendChild(head_row)
-        const header_description = document.createElement('th')
-        header_description.scope = 'col'
-        header_description.textContent = 'To Do Task Description'
-        head_row.appendChild(header_description)
-        const header_due = document.createElement('th')
-        header_due.scope = 'col'
-        header_due.textContent = 'Due On'
-        head_row.appendChild(header_due)
-        const header_priority = document.createElement('th')
-        header_priority.scope = 'col'
-        header_priority.textContent = 'Priority'
-        head_row.appendChild(header_priority)
-        const header_status = document.createElement('th')
-        header_status.scope = 'col'
-        header_status.textContent = 'Status'
-        head_row.appendChild(header_status)
-        // Create table's body
-        const table_body = document.createElement('tbody')
-        table_body.classList.add('table_body')
-        table.appendChild(table_body)
-        // Fill out table with projects' data
-        const current_project_to_dos = searchProject(project.projectName).projectToDo
-        for(let todo of current_project_to_dos){
-            const table_row = document.createElement('tr')
-            table_body.appendChild(table_row)
-            const to_do_description = document.createElement('th')
-            to_do_description.scope = 'row'
-            to_do_description.innerHTML = `<ul><li>${todo.description}</li></ul>` 
-            table_row.appendChild(to_do_description)
-            const to_do_due = document.createElement('td')
-            to_do_due.textContent = formatDueDateTime(todo.due_date_time)
-            table_row.appendChild(to_do_due)
-            const to_do_priority = document.createElement('td')
-            to_do_priority.textContent = todo.priority[0].toUpperCase() + todo.priority.substring(1)
-            table_row.appendChild(to_do_priority)
-            const to_do_status = document.createElement('td')
-            let to_do_status_text
-            if (todo.to_do_status == 'to_do'){
-                to_do_status_text = 'To Do'
-            } else if (todo.to_do_status == 'doing'){
-                to_do_status_text = 'Doing'
-            } else if (todo.to_do_status == 'done'){
-                to_do_status_text = 'Done'
-            }
-            to_do_status.textContent = to_do_status_text
-            table_row.appendChild(to_do_status)
-        }
-
+        const table = createToDoTable(project)
+        card.appendChild(table)  
     })
+    return add_button
+}
+
+
+
+function createProjectDeleteButton(project,projects) {
     // Delete the project button
     const delete_button = document.createElement('button')
     delete_button.classList.add('delete_project')
     delete_button.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" height="15px" width="15px"><title>delete</title><path d="M19,4H15.5L14.5,3H9.5L8.5,4H5V6H19M6,19A2,2 0 0,0 8,21H16A2,2 0 0,0 18,19V7H6V19Z" /></svg>'
-    edit_buttons.appendChild(delete_button)
     delete_button.addEventListener('click', () => {
         const result = confirm('Do you want to delete this project? Please note that you will lose all to do tasks under this project once you delete it.')
         if (result == true) {
@@ -389,168 +253,26 @@ function createProjectCard(project,isDashboard,projectIndex){
             displayProjectsInSidebar(projects)
         }
     })
-
-    const ul = document.createElement('ul')
-    ul.classList.add('project_to_dos')
-    let taskIndex = 0
-    for (let project_task of project.projectToDo){
-        const li = createToDoListItem(project_task, isDashboard, projectIndex, taskIndex);
-        ul.appendChild(li)
-        taskIndex ++
-    }
-    card.appendChild(ul)
-    return card
-}
-
-function createNewTableRowEvent(project,to_do_index) {
-    const table_body = document.querySelector('.table_body')
-    const table_row = document.createElement('tr')
-    table_body.appendChild(table_row)
-    const to_do_description = document.createElement('th')
-    to_do_description.scope = 'row'
-    to_do_description.innerHTML = `<ul><li id=${to_do_index}></li></ul>` 
-    table_row.appendChild(to_do_description)
-    // Add input field under description
-    const to_do_description_label = document.createElement('label')
-    to_do_description_label.htmlFor = 'description' + to_do_index
-    const to_do_description_input = document.createElement('input')
-    to_do_description_input.type = 'text'
-    to_do_description_input.id = 'description' + to_do_index
-    const li = document.getElementById(to_do_index)
-    li.appendChild(to_do_description_label)
-    li.appendChild(to_do_description_input)
-    // Add input field under due
-    const to_do_due = document.createElement('td')
-    to_do_due.classList.add('to_do_due' + to_do_index)
-    table_row.appendChild(to_do_due)
-    const to_do_due_label = document.createElement('label')
-    to_do_due_label.htmlFor = 'due' + to_do_index
-    const to_do_due_input = document.createElement('input')
-    to_do_due_input.type = 'datetime-local'
-    to_do_due_input.id = 'due' + to_do_index
-    to_do_due.appendChild(to_do_due_label)
-    to_do_due.appendChild(to_do_due_input)
-    // Add dropdown menu under priority
-    const to_do_priority = document.createElement('td')
-    to_do_priority.classList.add('to_do_priority' + to_do_index)
-    table_row.appendChild(to_do_priority)
-    const priority_select = document.createElement('select')
-    priority_select.name = 'priority'
-    to_do_priority.appendChild(priority_select)
-    const priority_option_high = document.createElement('option')
-    priority_option_high.value = 'high'
-    priority_option_high.textContent = 'High Priority'
-    priority_select.appendChild(priority_option_high)
-    const priority_option_normal = document.createElement('option')
-    priority_option_normal.value = 'normal'
-    priority_option_normal.textContent = 'Normal Priority'
-    priority_select.appendChild(priority_option_normal)
-    const priority_option_low = document.createElement('option')
-    priority_option_low.value = 'low'
-    priority_option_low.textContent = 'Low Priority'
-    priority_option_low.selected = true
-    priority_select.appendChild(priority_option_low)
-    // Add dropdown menu under status
-    const to_do_status = document.createElement('td')
-    to_do_status.classList.add('to_do_status' + to_do_index)
-    table_row.appendChild(to_do_status)
-    const status_select = document.createElement('select')
-    status_select.name = 'status'
-    to_do_status.appendChild(status_select)
-    const status_option_to_do = document.createElement('option')
-    status_option_to_do.value = 'to_do'
-    status_option_to_do.textContent = 'To Do'
-    status_select.appendChild(status_option_to_do)
-    const status_option_doing = document.createElement('option')
-    status_option_doing.value = 'doing'
-    status_option_doing.textContent = 'Doing'
-    status_select.appendChild(status_option_doing)
-    const status_option_done = document.createElement('option')
-    status_option_done.value = 'done'
-    status_option_done.textContent = 'Done'
-    status_select.appendChild(status_option_done)
-    // Add a Save button to create a new to do task
-    const save_button = document.createElement('button')
-    save_button.classList.add('save_button')
-    save_button.textContent = 'Save'
-    table_body.appendChild(save_button)
-    save_button.addEventListener('click',() => {
-        addNewToDoToProject(project,to_do_index)
-        save_button.remove();
-        
-    })
-}
-
-function addNewToDoToProject(project,to_do_index) {
-    const current_project = searchProject(project.projectName)
-    const user_description = document.getElementById('description' + to_do_index).value
-    const due = document.getElementById('due' + to_do_index)
-    const priority = document.querySelector('select[name="priority"]')
-    const status = document.querySelector('select[name="status"]')
-    const table_body = document.querySelector('.table_body')
-    let user_due = due.value
-    let user_priority = priority.value
-    let user_status = status.value
-    if (user_description == '') {
-        alert('Please enter valid to do description!')
-    } else {
-        if (current_project.searchToDo(user_description) == false){
-            current_project.addNewToDo(user_description,user_due,user_priority,user_status)
-            const li = document.getElementById(to_do_index)
-            li.innerHTML = user_description
-            const to_do_due = table_body.querySelector('.to_do_due' + to_do_index)
-            if (user_due == ''){
-                to_do_due.textContent = 'Never Due'
-            } else {
-                console.log(user_due)
-                console.log(Project.validDateTimeFormat(user_due))
-                console.log(typeof(formatDueDateTime(Project.validDateTimeFormat(user_due))))
-                to_do_due.textContent = formatDueDateTime(Project.validDateTimeFormat(user_due))
-            }
-            const to_do_priority = table_body.querySelector('.to_do_priority' + to_do_index)
-            to_do_priority.innerHTML = user_priority[0].toUpperCase() + user_priority.substring(1)
-            const to_do_status = table_body.querySelector('.to_do_status' + to_do_index)
-            if (user_status == 'to_do'){
-                user_status = 'To Do'
-            } else if (user_status == 'doing'){
-                user_status = 'Doing'
-            } else if (user_status == 'done'){
-                user_status = 'Done'
-            }
-            to_do_status.innerHTML = user_status
-        } else {
-            alert('This to do task already exists!')
-        }
-    }
-    
-
+    return delete_button
 }
 
 
 
 
+function createToDoListItem(project_task, isDashboard, projectIndex, taskIndex) {
+    const li = document.createElement('li')
+    const to_do_description = createToDoDescription(project_task, projectIndex, taskIndex)
+    const label = createToDoLabel(project_task, isDashboard, projectIndex, taskIndex)
+    const edit = createEditButton(project_task,to_do_description)
+    const delete_button = createDeleteButton(to_do_description)
 
+    li.appendChild(to_do_description)
+    li.appendChild(label)
+    li.appendChild(edit)
+    li.appendChild(delete_button)
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    return li
+}
 
 function createToDoDescription(project_task, projectIndex, taskIndex){
     const to_do_description = document.createElement('input')
@@ -563,7 +285,8 @@ function createToDoDescription(project_task, projectIndex, taskIndex){
     }
     to_do_description.addEventListener('click', () => {
         updateToDoStatus(project_task, to_do_description);
-        displayProjectsInSidebar(projects)        
+        displayProjectsInSidebar(projects)   
+        displayProjectsWithToDos(projects,true)
     })
     return to_do_description;
 }
@@ -589,22 +312,6 @@ function updateToDoStatusLabel(to_do_description){
         }
     }
 }
-
-
-
-function formatDueDateTime(dateTime) {
-    if (dateTime.getTime() == new Date(8640000000000000).getTime()) {
-        return 'Never Due'
-    } else {
-        const month = dateTime.getMonth() + 1;
-        const day = dateTime.getDate();
-        const year = dateTime.getFullYear();
-        const hours = dateTime.getHours();
-        const minutes = dateTime.getMinutes().toString().padStart(2, '0');
-        return `${month}/${day}/${year} ${hours}:${minutes}`;
-    }
-}
-
 
 function createToDoLabel(project_task,isDashboard,projectIndex,taskIndex) {
     const label = document.createElement('label')
@@ -643,6 +350,15 @@ function createToDoLabel(project_task,isDashboard,projectIndex,taskIndex) {
 }
 
 
+function createEditButton(project_task,to_do_description){
+    const edit = document.createElement('button')
+    edit.classList.add('editBtn')
+    edit.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" height="15px" width="15px"><title>pencil</title><path d="M20.71,7.04C21.1,6.65 21.1,6 20.71,5.63L18.37,3.29C18,2.9 17.35,2.9 16.96,3.29L15.12,5.12L18.87,8.87M3,17.25V21H6.75L17.81,9.93L14.06,6.18L3,17.25Z" /></svg>'
+    edit.addEventListener('click', () => {
+        openEditToDoDialog(project_task,to_do_description)
+    })
+    return edit
+}
 function createDeleteButton(to_do_description){
     const delete_button = document.createElement('button')
     delete_button.classList.add('deleteBtn')
@@ -659,63 +375,20 @@ function createDeleteButton(to_do_description){
     return delete_button
 }
 
-function createEditButton(project_task,to_do_description){
-    const edit = document.createElement('button')
-    edit.classList.add('editBtn')
-    edit.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" height="15px" width="15px"><title>pencil</title><path d="M20.71,7.04C21.1,6.65 21.1,6 20.71,5.63L18.37,3.29C18,2.9 17.35,2.9 16.96,3.29L15.12,5.12L18.87,8.87M3,17.25V21H6.75L17.81,9.93L14.06,6.18L3,17.25Z" /></svg>'
-    edit.addEventListener('click', () => {
-        openEditToDoDialog(project_task,to_do_description)
-    })
-    
-    return edit
+
+
+export function formatDueDateTime(dateTime) {
+    if (dateTime.getTime() == new Date(8640000000000000).getTime()) {
+        return 'Never Due'
+    } else {
+        const month = dateTime.getMonth() + 1;
+        const day = dateTime.getDate();
+        const year = dateTime.getFullYear();
+        const hours = dateTime.getHours();
+        const minutes = dateTime.getMinutes().toString().padStart(2, '0');
+        return `${month}/${day}/${year} ${hours}:${minutes}`;
+    }
 }
-
-function openEditToDoDialog(project_task,to_do_description){
-    const dialog = document.querySelector(".add-a-project")
-    dialog.showModal();
-    const target_project_name = to_do_description.parentElement.parentElement.parentElement.firstChild.value
-    const project_name = dialog.querySelector('#project-name')
-    const description = dialog.querySelector('#to-do-description')
-    const due = dialog.querySelector('#to-do-due')
-    const priority_buttons = dialog.querySelectorAll('input[name="priority"]')
-    const status_buttons = dialog.querySelectorAll('input[name="status"]')
-    const edit_status = dialog.querySelector('#edit-status')
-    edit_status.value = true;
-    project_name.value = target_project_name
-    description.value = project_task.description
-    due.value = project_task.due_date_time.getFullYear() + '-' + String(project_task.due_date_time.getMonth() + 1).padStart(2,'0') + '-' + String(project_task.due_date_time.getDate()).padStart(2,'0') + 'T' + String(project_task.due_date_time.getHours()).padStart(2,'0') + ':' + String(project_task.due_date_time.getMinutes()).padStart(2,'0')
-    priority_buttons.forEach(priority_button => {
-        if (priority_button.value == project_task.priority){
-            priority_button.checked = true
-        }
-    })
-    status_buttons.forEach(status_button => {
-        if (status_button.value == project_task.to_do_status){
-            status_button.checked = true
-        }
-    })
-    dialog.dataset.projectName = project_name.value
-    dialog.dataset.projectDescription = description.value
-
-}
-
-
-function createToDoListItem(project_task, isDashboard, projectIndex, taskIndex) {
-    const li = document.createElement('li')
-    const to_do_description = createToDoDescription(project_task, projectIndex, taskIndex)
-    const label = createToDoLabel(project_task, isDashboard, projectIndex, taskIndex)
-    const edit = createEditButton(project_task,to_do_description)
-    const delete_button = createDeleteButton(to_do_description)
-
-    li.appendChild(to_do_description)
-    li.appendChild(label)
-    li.appendChild(edit)
-    li.appendChild(delete_button)
-
-    return li
-}
-
-
 
 projects.push(Project.work);
 projects.push(Project.homeRenovation);
