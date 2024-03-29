@@ -6,7 +6,7 @@ import {
   saveProjectFormEvent,
   openEditToDoDialog,
 } from "./form_page.js";
-
+import {getWeather} from './weather.js'
 // eslint-disable-next-line prefer-const
 let projects = [];
 
@@ -18,6 +18,9 @@ function __init__() {
   displayProjectsWithToDos(projects, true);
   displayFilteredProjectsEvents(projects);
   displayAllProjectsEvent(projects);
+  displayWeather();
+
+  
 
   // window.addEventListener('load', () => {
   //     const stored_projects = JSON.parse(localStorage.getItem("projects"))
@@ -29,6 +32,16 @@ function __init__() {
   //     }
 
   // })
+}
+
+function displayWeather() {
+  // eslint-disable-next-line camelcase
+  const current_location = document.getElementById('location')
+  const confirm = document.getElementById('confirm')
+  confirm.addEventListener('click',() => {
+    // eslint-disable-next-line camelcase
+    getWeather(current_location.value);
+  })
 }
 
 function sortProjects(projects) {
