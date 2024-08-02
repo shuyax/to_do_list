@@ -6,7 +6,6 @@ import {
   saveProjectFormEvent,
   openEditToDoDialog,
 } from "./form_page.js";
-import {getWeather} from './weather.js'
 // eslint-disable-next-line prefer-const
 let projects = [];
 
