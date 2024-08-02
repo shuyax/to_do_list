@@ -17,7 +17,6 @@ function __init__() {
   displayProjectsWithToDos(projects, true);
   displayFilteredProjectsEvents(projects);
   displayAllProjectsEvent(projects);
-  displayWeather();
 
   
 
@@ -31,16 +30,6 @@ function __init__() {
   //     }
 
   // })
-}
-
-function displayWeather() {
-  // eslint-disable-next-line camelcase
-  const current_location = document.getElementById('location')
-  const confirm = document.getElementById('confirm')
-  confirm.addEventListener('click',() => {
-    // eslint-disable-next-line camelcase
-    getWeather(current_location.value);
-  })
 }
 
 function sortProjects(projects) {
