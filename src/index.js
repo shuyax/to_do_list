@@ -238,7 +238,6 @@ function updateProgressBar(
   total_task,
 ) {
   const percentage = done_task / total_task;
-  console.log(done_task, total_task, percentage)
   progress_bar.value = percentage;
   progress_bar_label.textContent = `${(percentage * 100).toFixed(0)}%`;
   return percentage;
