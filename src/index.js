@@ -200,7 +200,9 @@ function createProjectCard(project, isDashboard, projectIndex) {
     taskIndex++;
   }
   const total_task = project.projectToDo.length;
-  updateProgressBar(progress_bar, progress_bar_label, done_task, total_task);
+  if (total_task !== 0) {
+    updateProgressBar(progress_bar, progress_bar_label, done_task, total_task);
+  }
   card.appendChild(ul);
   return card;
 }
@@ -236,6 +238,7 @@ function updateProgressBar(
   total_task,
 ) {
   const percentage = done_task / total_task;
+  console.log(done_task, total_task, percentage)
   progress_bar.value = percentage;
   progress_bar_label.textContent = `${(percentage * 100).toFixed(0)}%`;
   return percentage;
